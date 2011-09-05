@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.date        = 
   s.authors     = ["Gregory Ostermayr"]
   s.email       = ["gregory.ostermayr@gmail.com"]
-  s.homepage    = "https://github.com/gregors"
+  s.homepage    = "https://github.com/gregors/mysql_rake_tasks"
   s.summary     = %q{Rake tasks for mysql}
   s.description = %q{A collection of rails rake tasks for mysql.}
   s.license = "MIT"
