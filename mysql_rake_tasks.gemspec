@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email       = ["gregory.ostermayr@gmail.com"]
   s.homepage    = "https://github.com/gregors"
   s.summary     = %q{Rake tasks for mysql}
-  s.description = %q{A collection mysql rails rake tasks for mysql.}
+  s.description = %q{A collection of rails rake tasks for mysql.}
   s.license = "MIT"
   s.extra_rdoc_files = [
    "LICENSE",
