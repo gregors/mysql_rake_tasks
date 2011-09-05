@@ -1,0 +1,43 @@
+= mysql_rake_tasks
+
+A collection of rails rake tasks for mysql
+1. create_users - creates localhost mysql user accounts for each database listing in the database.yml
+
+
+== Install
+
+1. Add mysql_rake_tasks to your gem file
+
+  gem 'mysql_rake_tasks', '~> 0.0.1'
+
+2. Run the bundle command
+
+  bundle install
+
+== Examples
+
+=== create_users
+
+To create mysql users in interactive mode run:
+
+  rake db:mysql:create_users
+  mysql user: root
+  mysql pass:
+
+You can also specify your root username and password on the command line:
+
+  rake db:mysel:create_users[root,mypassword]
+
+== License
+
+MIT
+
+== Credits
+
+Author: Gregory Ostermayr gregory.ostermayr@gmail.com
+
+Contributed code and/or ideas:
+
+Kevin Woods kwoods@privateergroup.com
+Travis Herrick
+
