@@ -5,7 +5,6 @@ require "mysql_rake_tasks/version"
 Gem::Specification.new do |s|
   s.name        = "mysql_rake_tasks"
   s.version     = MysqlRakeTasks::VERSION
-  s.date        = 
   s.authors     = ["Gregory Ostermayr"]
   s.email       = ["gregory.ostermayr@gmail.com"]
   s.homepage    = "https://github.com/gregors/mysql_rake_tasks"
