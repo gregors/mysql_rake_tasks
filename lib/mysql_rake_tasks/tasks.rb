@@ -25,7 +25,7 @@ module MysqlRakeTasks
       {:root_user => root_user, :pass => root_pass}
     end
 
-    # creates user permissions for mysql database for localhost only 
+    # creates user permissions for mysql database for localhost only
     def self.create_users(args)
       args = self.get_input(args)
       @root_user = args[:root_user]
@@ -48,7 +48,7 @@ module MysqlRakeTasks
           $stdout.puts "Error code: #{e.errno}"
           $stdout.puts "Error message: #{e.error}"
           $stdout.puts "Error SQLSTATE: #{e.sqlstate}" if e.respond_to?("sqlstate")
-        ensure # disconnect from server 
+        ensure # disconnect from server
           db.close if db
         end
       end
@@ -72,6 +72,65 @@ module MysqlRakeTasks
       SQL
     end
 
+    def self.stats
+      include ActionView::Helpers::NumberHelper
+      require 'mysql2'
+
+      # Grab the Rails app's config data
+      config = Rails::configuration
+
+      begin
+        dbh = Mysql2::Client.new( :host => database['host'], :username => database['username'], :password => database['password'])
+	sql = stats_query(database['database'])
+        result = dbh.query sql
+
+        print_header
+
+        result.each  do |row|
+          printf "| %30s | %13s | %9s | %8s | %8s |\n",
+          row["table_name"].ljust(30),
+          number_to_human(row["rows"]).ljust(13),
+          number_to_human_size(row["data"]),
+          number_to_human_size(row["idx"]),
+          number_to_human_size(row["total_size"])
+        end
+
+        print_separator
+        puts "| Total                                                                            |"
+        print_separator
+        puts "Database: #{database['database']}  MySQL Server Version: #{dbh.info[:version]}\n"
+        puts " "
+      rescue Mysql::Error => e
+        puts "Error code: #{e.errno}"
+        puts "Error message: #{e.error}"
+        puts "Error SQLSTATE: #{e.sqlstate}" if e.respond_to?("sqlstate")
+      ensure
+        dbh.close if dbh
+      end
+    end
+
+    def self.print_separator
+      puts   "+--------------------------------+---------------+-----------+----------+------------+"
+    end
+
+    def self.print_header
+      print_separator
+      printf "| %30s | %13s | %9s | %8s | %8s |\n",
+        "Table Name".ljust(30), "Rows".ljust(13), "Data Size", "IDX Size", "Total Size"
+       print_separator
+    end
+
+    def self.stats_query(db_name)
+      sql = <<-SQL
+          SELECT table_name,
+          concat(table_rows) rows,
+          concat(data_length) data,
+          concat(index_length) idx,
+          concat(data_length+index_length) total_size
+          FROM information_schema.TABLES
+          WHERE table_schema LIKE '#{db_name}'
+          ORDER BY data_length+index_length DESC;
+      SQL
+    end
   end
 end
-
