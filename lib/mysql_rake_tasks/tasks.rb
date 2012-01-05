@@ -1,5 +1,6 @@
 require 'rails'
 require 'mysql2'
+include ActionView::Helpers::NumberHelper
 
 module MysqlRakeTasks
   class Tasks
@@ -73,34 +74,30 @@ module MysqlRakeTasks
     end
 
     def self.stats
-      include ActionView::Helpers::NumberHelper
-      require 'mysql2'
-
-      # Grab the Rails app's config data
-      config = Rails::configuration
+      config = Rails::configuration.database_configuration[Rails.env]
 
       begin
-        dbh = Mysql2::Client.new( :host => database['host'], :username => database['username'], :password => database['password'])
-	sql = stats_query(database['database'])
+        dbh = Mysql2::Client.new( :host => config['host'], :username => config['username'], :password => config['password'])
+        sql = stats_query(config['database'])
         result = dbh.query sql
 
         print_header
 
         result.each  do |row|
-          printf "| %30s | %13s | %9s | %8s | %8s |\n",
+          printf "| %30s | %13s | %9s | %8s | %10s |\n",
           row["table_name"].ljust(30),
-          number_to_human(row["rows"]).ljust(13),
+          number_to_human(row["rows"]).rjust(13),
           number_to_human_size(row["data"]),
           number_to_human_size(row["idx"]),
           number_to_human_size(row["total_size"])
         end
 
         print_separator
-        puts "| Total                                                                            |"
+        puts "| Total                                                                              |"
         print_separator
-        puts "Database: #{database['database']}  MySQL Server Version: #{dbh.info[:version]}\n"
+        puts "Database: #{config['database']}  MySQL Server Version: #{dbh.info[:version]}\n"
         puts " "
-      rescue Mysql::Error => e
+      rescue Mysql2::Error => e
         puts "Error code: #{e.errno}"
         puts "Error message: #{e.error}"
         puts "Error SQLSTATE: #{e.sqlstate}" if e.respond_to?("sqlstate")
@@ -116,7 +113,7 @@ module MysqlRakeTasks
     def self.print_header
       print_separator
       printf "| %30s | %13s | %9s | %8s | %8s |\n",
-        "Table Name".ljust(30), "Rows".ljust(13), "Data Size", "IDX Size", "Total Size"
+        "Table Name".ljust(30), "Rows", "Data Size", "IDX Size", "Total Size"
        print_separator
     end
 
