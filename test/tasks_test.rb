@@ -17,14 +17,14 @@ class TasksTest < Test::Unit::TestCase
   def test_lack_of_args_invokes_cli_interface
     output = ""
     screen = io_mock do |input|
-               input.string = "root\nmypassword\n"
+               input.string = "root\nmyrootpass\n"
                output = MysqlRakeTasks::Tasks.get_input
              end
 
     assert_equal 'mysql user:', screen[0]
     assert_equal 'mysql password:', screen[1]
     assert_equal 'root', output[:root_user]
-    assert_equal 'mypassword', output[:pass]
+    assert_equal 'myrootpass', output[:pass]
   end
 
 
