@@ -1,5 +1,10 @@
 require 'rails'
 require 'mysql2'
+
+# test unit seems to need these
+require 'active_support'
+require 'action_view'
+
 include ActionView::Helpers::NumberHelper
 
 module MysqlRakeTasks

@@ -71,6 +71,16 @@ class TasksTest < Test::Unit::TestCase
     assert_equal 'Error code: 1064', screen[1]
   end
 
+  def test_stats_outputs_header
+    screen = io_mock do |input|
+      MysqlRakeTasks::Tasks.stats
+    end
+
+    assert_equal  '+--------------------------------+---------------+-----------+----------+------------+', screen[0]
+    assert_equal  '| Table Name                     |          Rows | Data Size | IDX Size | Total Size |', screen[1]
+    assert_equal  '+--------------------------------+---------------+-----------+----------+------------+', screen[2]
+  end
+
   def stub_config
    {"development"=>{"adapter"=>"mysql2",
                     "encoding"=>"utf8",
