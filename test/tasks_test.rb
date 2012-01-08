@@ -5,6 +5,10 @@ require 'stringio'
 require 'mocha'
 
 class TasksTest < Test::Unit::TestCase
+  def setup
+    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate) 
+    Rails.configuration.stubs(:database_configuration).returns(stub_config)
+  end
 
   def test_two_args_returns_two_values
     output = MysqlRakeTasks::Tasks::get_input({:root_user => 'user', :pass => 'pass'})
@@ -29,9 +33,6 @@ class TasksTest < Test::Unit::TestCase
 
 
   def test_unsuccessful_authentication
-    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate) 
-    Rails.configuration.stubs(:database_configuration).returns(stub_config)
-
     screen = io_mock do |input|
       MysqlRakeTasks::Tasks.create_users(:root_user => 'root', :pass => 'wrong')
     end
@@ -45,9 +46,6 @@ class TasksTest < Test::Unit::TestCase
   end
 
   def test_successful_creation
-    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate)
-    Rails.configuration.stubs(:database_configuration).returns(stub_config)
-
     screen = io_mock do |input|
       # :pass needs to be set to mysql root in order to pass
       MysqlRakeTasks::Tasks.create_users(:root_user => 'root', :pass => 'myrootpass') 
@@ -62,7 +60,6 @@ class TasksTest < Test::Unit::TestCase
     config = stub_config
     config["development"].delete "username"
 
-    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate)
     Rails.configuration.stubs(:database_configuration).returns(config)
 
     screen = io_mock do |input|
