@@ -126,7 +126,7 @@ module MysqlRakeTasks
           concat(data_length+index_length) total_size
           FROM information_schema.TABLES
           WHERE table_schema LIKE '#{db_name}'
-          ORDER BY data_length+index_length DESC;
+          ORDER BY table_name;
       SQL
     end
   end
