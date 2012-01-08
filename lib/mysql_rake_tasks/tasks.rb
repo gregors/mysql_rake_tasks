@@ -82,18 +82,20 @@ module MysqlRakeTasks
         result = dbh.query sql
 
         print_header
-
+        db_total = 0
         result.each  do |row|
           printf "| %30s | %13s | %9s | %8s | %10s |\n",
-          row["table_name"].ljust(30),
-          number_to_human(row["rows"]).rjust(13),
-          number_to_human_size(row["data"]),
-          number_to_human_size(row["idx"]),
-          number_to_human_size(row["total_size"])
+            row["table_name"].ljust(30),
+            number_to_human(row["rows"]).rjust(13),
+            number_to_human_size(row["data"]),
+            number_to_human_size(row["idx"]),
+            number_to_human_size(row["total_size"])
+
+	  db_total += row["total_size"].to_i
         end
 
         print_separator
-        puts "| Total                                                                              |"
+        printf "|%70s | %10s |\n",'',  number_to_human_size(db_total)
         print_separator
         puts "Database: #{config['database']}  MySQL Server Version: #{dbh.info[:version]}\n"
         puts " "
