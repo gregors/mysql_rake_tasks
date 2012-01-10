@@ -56,7 +56,7 @@ Author: Gregory Ostermayr gregory.ostermayr@gmail.com
 
 Contributed code and/or ideas:
 
-Kevin Woods kwoods@privateergroup.com
+Kevin Woods
 
 Travis Herrick
 
