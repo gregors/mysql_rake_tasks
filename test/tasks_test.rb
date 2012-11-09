@@ -11,24 +11,23 @@ class TasksTest < Test::Unit::TestCase
   end
 
   def test_two_args_returns_two_values
-    output = MysqlRakeTasks::Tasks::get_input({:root_user => 'user', :pass => 'pass'})
+    user, pass = MysqlRakeTasks::Tasks::get_input({:root_user => 'user', :pass => 'pass'})
 
-    assert_equal 2, output.length
-    assert_equal 'user', output[:root_user]
-    assert_equal 'pass', output[:pass]
+    assert_equal 'user', user
+    assert_equal 'pass', pass
   end
 
   def test_lack_of_args_invokes_cli_interface
     output = ""
     screen = io_mock do |input|
                input.string = "root\nmyrootpass\n"
-               output = MysqlRakeTasks::Tasks.get_input
+               @user, @pass = MysqlRakeTasks::Tasks.get_input
              end
 
     assert_equal 'mysql user:', screen[0]
     assert_equal 'mysql password:', screen[1]
-    assert_equal 'root', output[:root_user]
-    assert_equal 'myrootpass', output[:pass]
+    assert_equal 'root', @user
+    assert_equal 'myrootpass',@pass
   end
 
 
