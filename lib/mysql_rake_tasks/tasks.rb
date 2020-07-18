@@ -42,15 +42,15 @@ module MysqlRakeTasks
         db_name = @config['database']
 
         begin
-          db = Mysql2::Client.new(
-            :host => 'localhost',
-            :username => @root_user,
-            :password => @pass,
-            :socket => @config['socket'])
+          db = Mysql2::Client.new( host: 'localhost', username: @root_user, password: @pass)
 
-            sql = self.create_user_sql(@config)
-            db.query sql
-            $stdout.puts "Created #{username} on #{db_name}\n"
+          sql = self.create_user_sql(@config)
+          db.query(sql)
+
+          sql = self.grant_user_sql(@config)
+          db.query(sql)
+
+          $stdout.puts "Created #{username} on #{db_name}\n"
         rescue Mysql2::Error => e
           error_output(e)
         ensure # disconnect from server
@@ -60,33 +60,40 @@ module MysqlRakeTasks
     end
 
     def self.create_user_sql(config)
-      if config.nil?
-        return ''
-      end
+      return '' unless config
 
       if config['username'].nil?
         puts 'Error code: missing username entry'
       end
 
-      sql  = <<-SQL
-        GRANT
-        ALL PRIVILEGES
-        ON #{config['database']}.*
-        TO #{config['username']}@localhost
-        IDENTIFIED BY '#{config['password']}';
+      sql = <<-SQL
+        CREATE USER '#{config['username']}'@'localhost' IDENTIFIED BY '#{config['password']}';
+      SQL
+    end
+
+    def self.grant_user_sql(config)
+      return '' unless config
+
+      if config['username'].nil?
+        puts 'Error code: missing username entry'
+      end
+
+      sql = <<-SQL
+        GRANT ALL ON #{config['database']}.* TO '#{config['username']}'@'localhost';
       SQL
     end
 
     def self.stats
-      config = Rails::configuration.database_configuration[Rails.env]
+      config = Rails::configuration.database_configuration[Rails.env].clone
 
       begin
-        dbh = Mysql2::Client.new( :host => config['host'], :username => config['username'], :password => config['password'])
+        db = Mysql2::Client.new( host: config['host'], username: config['username'], password: config['password'])
+
         db_name = config['database']
-        version = dbh.info[:version]
+        version = db.info[:version]
 
         sql = stats_query(db_name)
-        result = dbh.query sql
+        result = db.query sql
 
       print_header
 
@@ -100,7 +107,7 @@ module MysqlRakeTasks
       rescue Mysql2::Error => e
         error_output(e)
       ensure
-        dbh.close if dbh
+        db.close if db
       end
     end
 
@@ -118,7 +125,7 @@ module MysqlRakeTasks
     def self.print_stat_line(row)
       printf "| %30s | %13s | %9s | %8s | %10s |\n",
         row["table_name"].ljust(30),
-        number_to_human(row["rows"]).rjust(13),
+        number_to_human(row["table_rows"]).rjust(13),
         number_to_human_size(row["data"]),
         number_to_human_size(row["idx"]),
         number_to_human_size(row["total_size"])
@@ -135,7 +142,7 @@ module MysqlRakeTasks
     def self.stats_query(db_name)
       sql = <<-SQL
           SELECT table_name,
-          concat(table_rows) rows,
+          concat(table_rows) as table_rows,
           concat(data_length) data,
           concat(index_length) idx,
           concat(data_length+index_length) total_size

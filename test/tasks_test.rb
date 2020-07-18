@@ -6,7 +6,7 @@ require 'mocha'
 
 class TasksTest < Test::Unit::TestCase
   def setup
-    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate) 
+    Rails.stubs(:configuration).returns(Rails::Application::Configuration.allocate)
     Rails.configuration.stubs(:database_configuration).returns(stub_config)
   end
 
@@ -35,7 +35,7 @@ class TasksTest < Test::Unit::TestCase
     screen = io_mock do |input|
       MysqlRakeTasks::Tasks.create_users(:root_user => 'root', :pass => 'wrong')
     end
-   
+
     assert_equal 'Error code: 1045', screen[0]
     assert_equal "Error message: Access denied for user 'root'@'localhost' (using password: YES)", screen[1]
     assert_equal 'Error code: 1045', screen[2]
@@ -47,7 +47,11 @@ class TasksTest < Test::Unit::TestCase
   def test_successful_creation
     screen = io_mock do |input|
       # :pass needs to be set to mysql root in order to pass
-      MysqlRakeTasks::Tasks.create_users(:root_user => 'root', :pass => 'myrootpass') 
+      #  mysqladmin --user=root password "myrootpass"
+      # create database task_test
+      # create database task_production
+      # drop user 'test'@'localhost';drop user 'dev'@'localhost';drop user 'prod'@'localhost';
+      MysqlRakeTasks::Tasks.create_users(:root_user => 'root', :pass => 'myrootpass')
     end
 
     assert_equal "Created dev on task_development", screen[0], 'Note: ***check test machine password***'
@@ -56,8 +60,10 @@ class TasksTest < Test::Unit::TestCase
   end
 
   def test_lack_of_user_throws_error
-    config = stub_config
+    config = stub_config.clone
     config["development"].delete "username"
+    config["production"].delete "username"
+    config["test"].delete "username"
 
     Rails.configuration.stubs(:database_configuration).returns(config)
 
@@ -67,7 +73,7 @@ class TasksTest < Test::Unit::TestCase
     end
 
     assert_equal 'Error code: missing username entry', screen[0], 'Note: ***check test machine password***'
-    assert_equal 'Error code: 1064', screen[1]
+    assert_equal 'Error code: 1396', screen[1]
   end
 
   def test_stats_outputs_header
@@ -101,7 +107,7 @@ class TasksTest < Test::Unit::TestCase
                   "database"=>"task_production",
                   "pool"=>5,
                   "username"=>"prod",
-                  "password"=>"prodpassword"}} 
+                  "password"=>"prodpassword"}}
   end
 
 
