@@ -31,7 +31,7 @@ You can also specify your root username and password on the command line:
 ### stats
 
 To display database stats:
-
+```bash
   rake db:mysql:stats
   +--------------------------------+---------------+-----------+----------+------------+
   | Table Name                     |          Rows | Data Size | IDX Size | Total Size |
@@ -45,6 +45,7 @@ To display database stats:
   |                                                                       |     135 MB |
   +--------------------------------+---------------+-----------+----------+------------+
   Database: mydb_development  MySQL Server Version: 5.1.58
+  ```
 
 ## License
 
